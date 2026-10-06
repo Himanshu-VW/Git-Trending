@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+.venv/
+venv/
+env/
+.env
+
+# Project specific files
+temp.json
+events.duckdb
+data/raws/*.json.gz
+*.duckdb.wal
+*.duckdb
