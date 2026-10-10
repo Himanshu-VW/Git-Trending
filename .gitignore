@@ -17,3 +17,5 @@ data/
 
 *.duckdb.wal
 *.duckdb
+
+.vscode
