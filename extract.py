@@ -8,7 +8,7 @@ def extract():
     date_str = yesterday.strftime("%Y-%m-%d")
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_dir = os.path.join(script_dir, "data", "raws")
+    output_dir = os.path.join(script_dir, "data", "raw")
     os.makedirs(output_dir, exist_ok=True)
 
     print(f"Starting extraction for yesterday's date: {date_str}")

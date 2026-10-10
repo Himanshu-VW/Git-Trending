@@ -12,6 +12,8 @@ env/
 # Project specific files
 temp.json
 events.duckdb
-data/raws/*.json.gz
+# Data directory
+data/
+
 *.duckdb.wal
 *.duckdb

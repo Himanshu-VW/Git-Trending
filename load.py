@@ -1,31 +1,31 @@
 import duckdb
+import os
 
-def load_data():
-    # Connect to a file-based DuckDB database (persists on disk)
-    db_file = 'events.duckdb'
-    con = duckdb.connect(db_file)
-    
-    print(f"Connected to/Created database: {db_file}")
-    
-    # Load JSON data into a table
-    # Using read_json_auto allows DuckDB to infer the schema
-    query = """
-    CREATE OR REPLACE TABLE events AS 
-    SELECT * FROM read_json_auto('temp.json');
-    """
-    
-    try:
-        con.execute(query)
-        print("Data loaded successfully into 'events' table.")
-        
-        # Verify
-        count = con.execute("SELECT count(*) FROM events").fetchone()[0]
-        print(f"Total rows imported: {count}")
-        
-    except Exception as e:
-        print(f"Error loading data: {e}")
-    finally:
-        con.close()
+# Connect to the DuckDB database (creates it if it doesn't exist)
+con = duckdb.connect("events.duckdb")
 
-if __name__ == '__main__':
-    load_data()
+# Create the events table if it doesn't exist
+con.execute("""
+    CREATE TABLE IF NOT EXISTS events (
+        event_id BIGINT,
+        event_type VARCHAR,
+        repo_id BIGINT,
+        repo_name VARCHAR,
+        actor_id BIGINT,
+        actor_login VARCHAR,
+        created_at TIMESTAMP
+    )
+""")
+
+# Load the JSON data
+# Assuming data/filtered_json contains .json files with the schema matching the table
+try:
+    con.execute("""
+        INSERT INTO events
+        SELECT * FROM read_json_auto('data/filtered_json/*.json')
+    """)
+    print("Data loaded successfully.")
+except Exception as e:
+    print(f"Error loading data: {e}")
+finally:
+    con.close()
