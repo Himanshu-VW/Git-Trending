@@ -1,7 +1,8 @@
 import duckdb
 import os
+import glob
 
-# Connect to the DuckDB database (creates it if it doesn't exist)
+# Connect to the DuckDB database
 con = duckdb.connect("events.duckdb")
 
 # Create the events table if it doesn't exist
@@ -17,15 +18,18 @@ con.execute("""
     )
 """)
 
-# Load the JSON data
-# Assuming data/filtered_json contains .json files with the schema matching the table
-try:
-    con.execute("""
-        INSERT INTO events
-        SELECT * FROM read_json_auto('data/filtered_json/*.json')
-    """)
-    print("Data loaded successfully.")
-except Exception as e:
-    print(f"Error loading data: {e}")
-finally:
-    con.close()
+# Process each JSON file individually
+json_files = glob.glob('data/filtered_json/*.json')
+
+for file_path in json_files:
+    try:
+        # Use read_json_auto to load and insert the data
+        con.execute(f"INSERT INTO events SELECT * FROM read_json_auto('{file_path}')")
+        
+        # If successful, delete the file
+        os.remove(file_path)
+        print(f"Successfully processed and deleted: {file_path}")
+    except Exception as e:
+        print(f"Error processing {file_path}: {e}")
+
+con.close()
