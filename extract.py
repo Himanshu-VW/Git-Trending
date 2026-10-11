@@ -1,17 +1,21 @@
 import os
 import urllib.request
+import sys
 from datetime import datetime, timedelta, timezone
 
 
-def extract():
-    yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).date()
-    date_str = yesterday.strftime("%Y-%m-%d")
+def extract(target_date_str=None):
+    if target_date_str:
+        date_str = target_date_str
+    else:
+        yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).date()
+        date_str = yesterday.strftime("%Y-%m-%d")
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_dir = os.path.join(script_dir, "data", "raw")
     os.makedirs(output_dir, exist_ok=True)
 
-    print(f"Starting extraction for yesterday's date: {date_str}")
+    print(f"Starting extraction for date: {date_str}")
 
     for h in range(24):
         file_name = f"{date_str}-{h}.json.gz"
@@ -30,4 +34,5 @@ def extract():
 
 
 if __name__ == "__main__":
-    extract()
+    target_date = sys.argv[1] if len(sys.argv) > 1 else None
+    extract(target_date)
