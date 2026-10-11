@@ -1,28 +1,31 @@
-import os
+import duckdb
 import datetime
-import glob
+import os
 
-# Configuration
-DIRECTORY = "data/processed_raws"
-RETENTION_DAYS = 7
-TODAY = datetime.date.today()
-CUTOFF_DATE = TODAY - datetime.timedelta(days=RETENTION_DAYS)
+def cleanup_database():
+    db_path = "events.duckdb"
+    if not os.path.exists(db_path):
+        print(f"Database {db_path} not found.")
+        return
 
-# Pattern to match: YYYY-MM-DD-H.json.gz
-# We want to parse the date from the filename
-files = glob.glob(os.path.join(DIRECTORY, "*.json.gz"))
-
-for file_path in files:
-    filename = os.path.basename(file_path)
-    # Filename format: 2026-10-09-0.json.gz
-    # Extract date part
+    # Calculate cutoff: UTC date, 7 days ago, at 00:00:00
+    today = datetime.datetime.now(datetime.timezone.utc).date()
+    cutoff_date = today - datetime.timedelta(days=7)
+    cutoff_datetime = datetime.datetime.combine(cutoff_date, datetime.time(0, 0, 0))
+    
+    print(f"Running cleanup on {db_path}. Removing records older than {cutoff_datetime} UTC.")
+    
     try:
-        date_part = filename.split('-')
-        # date_part[0] is YYYY, date_part[1] is MM, date_part[2] is DD
-        file_date = datetime.date(int(date_part[0]), int(date_part[1]), int(date_part[2]))
+        con = duckdb.connect(db_path)
+        # Execute delete
+        con.execute("DELETE FROM events WHERE created_at < ?", [cutoff_datetime])
         
-        if file_date <= CUTOFF_DATE:
-            os.remove(file_path)
-            print(f"Deleted: {filename}")
+        print("Cleanup complete.")
+        
+        con.close()
     except Exception as e:
-        print(f"Skipping {filename}: Error parsing date - {e}")
+        print(f"An error occurred during cleanup: {e}")
+        raise
+
+if __name__ == "__main__":
+    cleanup_database()

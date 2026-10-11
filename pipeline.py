@@ -13,7 +13,7 @@ def run_script(script_name):
         sys.exit(1)
 
 def main():
-    scripts = ["extract.py", "transform.py", "load.py", "build_marts.py"]
+    scripts = ["extract.py", "transform.py", "load.py", "cleanup.py", "build_marts.py"]
     
     for script in scripts:
         run_script(script)
