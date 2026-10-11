@@ -1,7 +1,7 @@
 import duckdb
 from pathlib import Path
 import sys
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime, timezone
 
 def build_fact_daily(day, db_path="events.duckdb"):
     con = duckdb.connect(db_path)
@@ -29,6 +29,6 @@ def build_dim_repo(day, db_path="events.duckdb"):
     con.close()
 
 if __name__ == "__main__":
-    day = sys.argv[1] if len(sys.argv) > 1 else str(date.today() - timedelta(days=1))
+    day = sys.argv[1] if len(sys.argv) > 1 else str((datetime.now(timezone.utc) - timedelta(days=1)).date())
     build_fact_daily(day)
     build_dim_repo(day)

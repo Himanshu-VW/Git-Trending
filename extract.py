@@ -1,10 +1,10 @@
 import os
 import urllib.request
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 def extract():
-    yesterday = date.today() - timedelta(days=1)
+    yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).date()
     date_str = yesterday.strftime("%Y-%m-%d")
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
