@@ -20,3 +20,4 @@ data/
 
 .vscode
 
+reports/report_*.md
